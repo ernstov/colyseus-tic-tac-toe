@@ -1,0 +1,25 @@
+namespace: colyseus-tic-tac-toe
+colyseus-tic-tac-toe:
+  defines: runnable
+  metadata:
+    name: colyseus-tic-tac-toe
+    description: A simple multiplayer Tic Tac Toe game server built with Colyseus.
+    icon: https://emojiapi.dev/api/v1/game_die.svg
+  containers:
+    colyseus-tic-tac-toe:
+      build: .
+      image: env-238.registry.local/colyseus-tic-tac-toe:master-38f85e1
+  services:
+    appport:
+      container: colyseus-tic-tac-toe
+      port: <- $port
+      host-port: <- $port
+      publish: false
+      protocol: TCP
+      description: Port for the application's main server.
+  variables:
+    port:
+      env: PORT
+      type: string
+      description: Port for the application's main server
+      value: '3553'

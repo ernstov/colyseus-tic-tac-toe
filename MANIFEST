@@ -1,0 +1,2 @@
+REPO colyseus-tic-tac-toe
+LOAD colyseus-tic-tac-toe.yaml
