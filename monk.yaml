@@ -1,0 +1,68 @@
+namespace: colyseus-tic-tac-toe
+
+tictactoe-server:
+  defines: runnable
+  metadata:
+    name: tictactoe-server
+    description: Colyseus server for the multiplayer Tic-Tac-Toe game
+    icon: https://emojiapi.dev/api/v1/robot.svg
+  containers:
+    tictactoe-server:
+      image: env-2905.registry.local/tictactoe-server:master-38f85e1
+      build: .
+      dockerfile: Dockerfile.tictactoe-server
+  services:
+    tictactoe-server-port:
+      description: Port for the Tic-Tac-Toe game server
+      container: tictactoe-server
+      port: $port
+      host-port: $port
+      publish: true
+      protocol: tcp
+  connections:
+    tictactoe-frontend-connection:
+      target: colyseus-tic-tac-toe/tictactoe-frontend
+      service: http-server
+      optional: true
+      description: Connection from tictactoe-server to tictactoe-frontend
+  variables:
+    port:
+      env: PORT
+      type: int
+      value: 2567
+      description: The port on which the tictactoe-server service listens
+
+tictactoe-frontend:
+  defines: runnable
+  metadata:
+    name: tictactoe-frontend
+    description: Frontend for the Tic-Tac-Toe game using Pixi.js
+    icon: https://emojiapi.dev/api/v1/robot.svg
+  containers:
+    tictactoe-frontend:
+      image: env-2905.registry.local/tictactoe-frontend:master-38f85e1
+      build: .
+      dockerfile: Dockerfile.tictactoe-frontend
+  services:
+    http-server:
+      description: HTTP server listening on this port to serve the frontend assets
+      container: tictactoe-frontend
+      port: 8080
+      host-port: 8080
+      publish: true
+      protocol: tcp
+  connections:
+    websocket-server-connection:
+      target: colyseus-tic-tac-toe/tictactoe-server
+      service: tictactoe-server-port
+      optional: true
+      description: >-
+        WebSocket connection to the tictactoe-server service for real-time game
+        communication
+  variables: {}
+
+stack:
+  defines: group
+  members:
+    - colyseus-tic-tac-toe/tictactoe-server
+    - colyseus-tic-tac-toe/tictactoe-frontend
