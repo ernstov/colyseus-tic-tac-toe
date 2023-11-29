@@ -1,0 +1,14 @@
+FROM node:14
+
+WORKDIR /usr/src/app
+
+COPY server/package*.json ./
+
+RUN npm install
+COPY server/ .
+
+RUN npm install -g typescript
+RUN tsc
+
+EXPOSE 2567
+CMD [ "node", "lib/index.js" ]
