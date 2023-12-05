@@ -1,0 +1,61 @@
+namespace: colyseus-tic-tac-toe
+
+colyseus-server:
+  defines: runnable
+  metadata:
+    name: colyseus-server
+    description: Colyseus server for the Tic-Tac-Toe game
+    icon: https://emojiapi.dev/api/v1/robot.svg
+  containers:
+    colyseus-server:
+      image: env-2107.registry.local/colyseus-server:master-38f85e1
+      build: .
+      dockerfile: Dockerfile.colyseus-server
+  services:
+    colyseus-server-port:
+      description: Port for Colyseus server WebSocket and HTTP connections
+      container: colyseus-server
+      port: $port
+      host-port: $port
+      publish: true
+      protocol: tcp
+  connections: {}
+  variables:
+    port:
+      env: PORT
+      type: int
+      value: 3553
+      description: The port number on which the Colyseus server listens for connections
+
+javascript-pixi-client:
+  defines: runnable
+  metadata:
+    name: javascript-pixi-client
+    description: JavaScript/PixiJS client for the Tic-Tac-Toe game
+    icon: https://emojiapi.dev/api/v1/robot.svg
+  containers:
+    javascript-pixi-client:
+      image: env-2107.registry.local/javascript-pixi-client:master-38f85e1
+      build: .
+      dockerfile: Dockerfile.javascript-pixi-client
+  services:
+    http-server-port:
+      description: Port for serving the JavaScript/PixiJS client static files
+      container: javascript-pixi-client
+      port: 8080
+      host-port: 8080
+      publish: true
+      protocol: tcp
+  connections:
+    websocket-server-connection:
+      target: colyseus-tic-tac-toe/colyseus-server
+      service: colyseus-server-port
+      optional: true
+      description: Connection to the Colyseus server for multiplayer game functionality
+  variables: {}
+
+stack:
+  defines: group
+  members:
+    - colyseus-tic-tac-toe/colyseus-server
+    - colyseus-tic-tac-toe/javascript-pixi-client
